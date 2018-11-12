@@ -5,3 +5,4 @@ http://dbase.cc/2017/05/23/tools/Dell%20iDRAC%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9
 <#Insatll procedure>
 # 'Name server setup'
 # Choose 'Use entire disk as one partition'
+# Enable 'Open SSH' in Select and install software, if you have a master server (Like ansible or salt-master)
