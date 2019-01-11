@@ -1,0 +1,21 @@
+include:
+ - key_user_deploy_ea
+ - key_user_deploy_gto
+ - system_disable_auto_upgrade
+ - system_add_vlan_grains
+ - system_add_vim_header
+# - system_delete_useless_users
+ - system_update_timezone
+ - system_revise_dns
+# - system_revise_static_route
+ - deploy_docker
+ - deploy_gims_update
+# - deploy_iptables_audit
+ - deploy_k8s
+ - deploy_ntp
+ - deploy_omsa
+ - deploy_gmoni
+# - deploy_zabbix_agent
+ - zabbix_monitor_all
+# - monitor_iptables_change
+ - system_limit_ssh
