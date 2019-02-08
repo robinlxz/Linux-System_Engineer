@@ -1,0 +1,19 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+## TCP for port 22
+#VPN and Dlink
+-A INPUT -s 203.117.172.136/32 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s 101.127.248.186/32 -p tcp -m tcp --dport 22 -j ACCEPT
+
+# allow loopback and related,established traffic
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+-A FORWARD -m state --state INVALID -j DROP
+-A OUTPUT -m state --state INVALID -j DROP
+
+COMMIT
+# Completed on Oct 10 2018

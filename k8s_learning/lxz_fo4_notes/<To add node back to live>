@@ -1,0 +1,132 @@
+<To add node back to live>
+1. kubectl get node --show-labels | grep push
+2. update label (didn't do in MS#8C MA)
+3. (It is the lable for 'group')
+
+
+<update>
+
+helm ls
+helm search
+sudo helm fetch fo4/th_live
+sudo tar -xvzf <th_live-192430.tgz> (The latest one)
+cd th_live/charts/
+
+
+redis-cli -h 10.66.96.36 -p 7000 -a cDbP8qPn8LMJ5kjM --scan --pattern sess:*| xargs redis-cli -h 10.66.96.36 -p 7000 -a cDbP8qPn8LMJ5kjM --raw del
+
+kubectl edit deploy -n kube-system kube-dns
+kubectl get pods -n kube-system | grep dns
+
+
+<Start service>
+(change directory to latest helm charts folder first)
+<1. Backend>
+helm install --name=backend backend/
+kubectl get pods
+Then go to check all MQ and consul service monitoring ()
+http://fo4-vn-dashboard.sphd.io:15672/#/
+(and 1567[3-5?])
+http://fo4-vn-dashboard.sphd.io:8500/ui/betago/services
+
+<2. common>
+-helm install --name=common common/
+Problem 1: Typo error when trying to helm install
+-kubectl get deploy
+-kubectl logs -l app=gateway
+-kubectl logs -l app=auth
+Problim 2: Many errors, 'Cannot read property', is due to too many service are bring up in the same time, it can be ignored.
+
+<3. game>
+-helm install --name=game game/
+2.check 'get deploy'
+3.randomly choose one game pod to check the log
+3.1 kubectl get pods |grep game
+3.2 kubectl get logs <the choosen game pod name>
+
+<3 Extra: TOTM limit price initialization>
+kubectl exec -it game-74b65c4bbb-z4g8q bash
+(then)
+node tool/regenerate_players_metadata.js
+
+<4. util>
+-helm install --name=util util/
+
+*<FO4M> json submit then refresh the page, then it shows the submit is corrected.
+
+
+<pods error for 'trade'>
+(The correct procedure should be:)
+[Bring up game] -> [remove previous trace price cronjob] -> new player trade price initialization (.js script inside game pod) -> create trade cronjob 
+(The commond used for above procedure is:)
+kubectl get pods | grep trade
+kubectl logs -f trade-price-min-1548641460-6gnv2
+kubectl get pods | grep trade
+kubectl logs -f trade-price-min-1548641460-w8ksz
+kubectl get cronjob
+kubectl get pods | grep trade
+kubectl get cronjob
+kubectl delete cronjob trade-price-min
+kubectl get job
+kubectl get pods | grep trade
+helm upgrade game game/
+kubectl get cronjob
+kubectl get pods | grep trade
+kubectl get cronjob
+kubectl get pods | grep trade
+
+
+<Final check: No logic error, then can go live>
+Can be ignored: Exception, got an error Error
+
+
+
+<<<Below are selection from EA Email>>>
+[FO4][VN] Technical Maintenance Note for MS#8C release and rank season reset MA on 29th Jan
+ 1. Cleaning sessions to remove invalid CCU
+[code VN]
+root@vnmgmt01:~# redis-cli -h 10.84.128.36 -p 7000 -a duuZZU2rrqp7m7pr --scan --pattern sess:* | xargs redis-cli -h 10.84.128.36 -p 7000 -a duuZZU2rrqp7m7pr --raw del
+[code TH]
+root@thmgmt01:~# redis-cli -h 10.66.96.36 -p 7000 -a cDbP8qPn8LMJ5kjM --scan --pattern sess:*| xargs redis-cli -h 10.66.96.36 -p 7000 -a cDbP8qPn8LMJ5kjM --raw del
+
+2. Bring down FO4 VN Live service
+helm del --purge util game common backend
+helm ls
+kubectl get deploy
+
+3. Include the newly added machines for VN FE expansion into VN Live
+for i in {04..06}; do kubectl label node vnclientlog$i group=clientlog; done
+for i in {31..73}; do kubectl label node vncommon$i group=common; done
+for i in {04..06}; do kubectl label node vnconsul$i group=consul; done
+for i in {51..73}; do kubectl label node vngame$i group=game; done
+for i in {04..06}; do kubectl label node vnmqevent$i group=mq-event; done
+for i in {04..06}; do kubectl label node vnmqlog$i group=mq-log; done
+for i in {07..12}; do kubectl label node vnmqpush$i group=mq-push; done
+for i in {11..20}; do kubectl label node vnmqrpc$i group=mq-rpc; done
+for i in {21..35}; do kubectl label node vnrelay$i group=relay; done
+for i in {03..04}; do kubectl label node vnsentry$i group=sentry; done
+for i in {06..10}; do kubectl label node vnthoth$i group=thoth; done
+
+(3. roll back) Remove labeling if there are any issues on including the servers
+for i in {04..06}; do kubectl label node vnclientlog$i group-; done
+for i in {31..73}; do kubectl label node vncommon$i group-; done
+for i in {04..06}; do kubectl label node vnconsul$i group-; done
+for i in {51..73}; do kubectl label node vngame$i group-; done
+for i in {04..06}; do kubectl label node vnmqevent$i group-; done
+for i in {04..06}; do kubectl label node vnmqlog$i group-; done
+for i in {07..12}; do kubectl label node vnmqpush$i group-; done
+for i in {11..20}; do kubectl label node vnmqrpc$i group-; done
+for i in {21..35}; do kubectl label node vnrelay$i group-; done
+for i in {03..04}; do kubectl label node vnsentry$i group-; done
+for i in {06..10}; do kubectl label node vnthoth$i group-; done
+
+*4. Apply new patch
+helm repo list #Check this is fo4 repo, not default one
+
+5. Restart FO4 VN Live service
+
+
+EAK Final check:
+1. kubectl get deploy
+2. kubectl get pods|grep -v Running
+2.1 If there is any pods having 'RESTARTS' != 0, need to check that pod specifically. (Maybe by log, if no idea, escalate it)

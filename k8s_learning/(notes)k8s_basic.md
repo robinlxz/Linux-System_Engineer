@@ -19,3 +19,45 @@ https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 {AVAILABLE} displays how many replicas of the application are available to your users.
 {AGE} displays the amount of time that the application has been running.
 3. 'kubectl describe deployments'
+
+#K8s service
+Service: to decoupling Pods, like between FE and BE Pods
+(https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies)
+A Service in Kubernetes is a REST (REpretational States Transfer) object, similar to a Pod. Like all of the REST objects, a Service definition can be POSTed to the apiserver to create a new instance.
+Service can connect Node(server) IP to Pod IP. "Note that a Service can map an incoming port to any targetPort."
+
+(https://www.youtube.com/watch?v=5lzUpDtmWgM)
+
+#My understanding for some words:
+Deployment, DaemonSets are controller of Pods 
+Endpoint: An Endpoint API is to help service.
+For Kubernetes-native applications, Kubernetes offers a simple Endpoints API that is updated whenever the set of Pods in a Service changes. For non-native applications, Kubernetes offers a virtual-IP-based bridge to Services which redirects to the backend Pods.
+
+Secrets: A place in k8s to keep credential
+Configmap?
+Volumes, and Cronjob???
+
+#Helm:
+(https://github.com/helm/helm)
+Helm is a tool for managing Kubernetes charts. Charts are packages of pre-configured Kubernetes resources.
+Use Helm to:
+-Create reproducible builds of your Kubernetes applications
+-Intelligently manage your Kubernetes manifest files
+-Manage releases of Helm packages
+* Quickstart: https://docs.helm.sh/using_helm/#quickstart-guide
+
+(https://www.youtube.com/watch?v=Jj1Ueq_Lz6A)
+"When you create a chart, you basically create a package of configurations that you're going to apply"
+
+
+
+#Install procedure
+(for iptables: http://linux-sys-adm.com/ubuntu-16.04-lts-how-to-configure-firewall-iptables-fail2ban/)
+Official install for kubeadm, kubectl, kubelet: https://kubernetes.io/docs/setup/independent/install-kubeadm/
+After install: kubeadm init
+And copy the auth file: https://github.com/kubernetes/kubernetes/issues/44665
+	did you run below commands after kubeadm init
+	To start using your cluster, you need to run (as a regular user):
+	sudo cp /etc/kubernetes/admin.conf $HOME/
+	sudo chown $(id -u):$(id -g) $HOME/admin.conf
+	export KUBECONFIG=$HOME/admin.conf

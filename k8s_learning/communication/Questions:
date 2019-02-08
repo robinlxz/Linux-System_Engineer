@@ -1,0 +1,32 @@
+Questions:
+
+1. Which type of 'kubenetes service proxies' does FO4 use? Is it Proxy-mode: userspace, Proxy-mode: iptables, or Proxy-mode: ipvs?
+(https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies)
+Is the type 'Cluster IP' and 'Node Port' fit in here?
+
+e.g. in /th_live-182182/charts/backend/charts/service/templates/predixy-service.yaml, it defines both "Endpoint" and "Service"
+
+
+2. Other than kubectl logs, is there any other place should we check during incident?
+Is there a suggested way to track the reason for a pod down?
+
+3. Could Studio introduce us with all the monitoring tools that can be shared with us?
+
+4. Could Studio show us the procedure to setup k8s server in test environment?
+
+5. As helm need tiller running on each node, shall we add monitoring for tiller status?
+
+###(Below question is for internal only)###
+1. We know Deployment, Pod, Service, Endpoint is used in FO4.
+Is DaemonSets, Configmap, Secrets, Volumes, and Cronjob is used?
+(Configmap looks only used in prometheus, I didn't find DaemonSets in server)
+DaemonSets is also an alternative controller as Deployment, why we use both?
+Endpoint API is used for k8s native applications, for FO4 it use Virtual IP and kube-proxy. In this case, does Endpoint API is still used?
+
+2. Do we need to ask about helm roll back operation?
+
+lxz:
+/th_live-182182/charts/backend/charts/service/templates/predixy-service.yaml
+kind: Endpoints
+
+grep -rn 'kind: Service' ./*/*
