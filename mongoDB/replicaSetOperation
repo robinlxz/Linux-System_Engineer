@@ -1,0 +1,22 @@
+# How to replace a failed secondary node in mongod replica set
+
+1. Start a new mongod server with mongod config file and init file copy from existing hidden secondary mongod server
+(including create new db folder)
+2. Start the mongod service by init script (service XXXX start)
+3. Check mongo log (syslog in our case) to make sure the mongod is running without error
+4. Go to current primary mongod, login to mongo, check current repilca status
+mongo --port <port> -u <user> -p (then manually input password in prompt)
+(rs.status, rs.conf)
+5. Add the new member (http://wiki.jingle.cn/display/GREP/FO3+DB+Shrink#FO3DBShrink-Setupreplicaset)
+(Add with priority:0, vote:0, for not to disturb current primary)
+rs.add( { host: "IP:port", priority: 0, votes: 0 } )
+var cfg = rs.conf();
+cfg.members[3].priority = 1
+cfg.members[3].votes = 1
+rs.reconfig(cfg)
+(Check the mongo log of the new member, to see it join without error)
+6. Drop the previous failed member (https://docs.mongodb.com/manual/tutorial/remove-replica-set-member/)
+(The ID is based on array position, not _id)
+rs.remove("IP:port")
+7. Check replication lag (https://docs.mongodb.com/manual/tutorial/remove-replica-set-member/)
+rs.printSlaveReplicationInfo()
